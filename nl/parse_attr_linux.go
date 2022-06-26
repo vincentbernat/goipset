@@ -11,34 +11,31 @@ type Attribute struct {
 	Value []byte
 }
 
-func ParseAttributes(data []byte) <-chan Attribute {
+func ParseAttributes(data []byte) []Attribute {
 	native := NativeEndian()
-	result := make(chan Attribute)
+	result := []Attribute{}
 
-	go func() {
-		i := 0
-		for i+4 < len(data) {
-			length := int(native.Uint16(data[i : i+2]))
-			attrType := native.Uint16(data[i+2 : i+4])
+	i := 0
+	for i+4 < len(data) {
+		length := int(native.Uint16(data[i : i+2]))
+		attrType := native.Uint16(data[i+2 : i+4])
 
-			if length < 4 {
-				log.Printf("attribute 0x%02x has invalid length of %d bytes", attrType, length)
-				break
-			}
-
-			if len(data) < i+length {
-				log.Printf("attribute 0x%02x of length %d is truncated, only %d bytes remaining", attrType, length, len(data)-i)
-				break
-			}
-
-			result <- Attribute{
-				Type:  attrType,
-				Value: data[i+4 : i+length],
-			}
-			i += rtaAlignOf(length)
+		if length < 4 {
+			log.Printf("attribute 0x%02x has invalid length of %d bytes", attrType, length)
+			break
 		}
-		close(result)
-	}()
+
+		if len(data) < i+length {
+			log.Printf("attribute 0x%02x of length %d is truncated, only %d bytes remaining", attrType, length, len(data)-i)
+			break
+		}
+
+		result = append(result, Attribute{
+			Type:  attrType,
+			Value: data[i+4 : i+length],
+		})
+		i += rtaAlignOf(length)
+	}
 
 	return result
 }
@@ -48,7 +45,7 @@ func PrintAttributes(data []byte) {
 }
 
 func printAttributes(data []byte, level int) {
-	for attr := range ParseAttributes(data) {
+	for _, attr := range ParseAttributes(data) {
 		for i := 0; i < level; i++ {
 			print("> ")
 		}

@@ -305,7 +305,7 @@ func ipsetUnserialize(msgs [][]byte) (result GoIPSetResult, err error) {
 func (result *GoIPSetResult) unserialize(msg []byte) error {
 	result.Nfgenmsg = nl.DeserializeNfgenmsg(msg)
 
-	for attr := range nl.ParseAttributes(msg[4:]) {
+	for _, attr := range nl.ParseAttributes(msg[4:]) {
 		switch attr.Type {
 		case nl.IPSET_ATTR_PROTOCOL:
 			result.Protocol = attr.Value[0]
@@ -337,7 +337,7 @@ func (result *GoIPSetResult) unserialize(msg []byte) error {
 }
 
 func (result *GoIPSetResult) parseAttrData(data []byte) error {
-	for attr := range nl.ParseAttributes(data) {
+	for _, attr := range nl.ParseAttributes(data) {
 		switch attr.Type {
 		case nl.IPSET_ATTR_HASHSIZE | nl.NLA_F_NET_BYTEORDER:
 			result.HashSize = attr.Uint32()
@@ -362,7 +362,7 @@ func (result *GoIPSetResult) parseAttrData(data []byte) error {
 }
 
 func (result *GoIPSetResult) parseAttrADT(data []byte) error {
-	for attr := range nl.ParseAttributes(data) {
+	for _, attr := range nl.ParseAttributes(data) {
 		switch attr.Type {
 		case nl.IPSET_ATTR_DATA | nl.NLA_F_NESTED:
 			entry, err := parseIPSetEntry(attr.Value)
@@ -380,7 +380,7 @@ func (result *GoIPSetResult) parseAttrADT(data []byte) error {
 func parseIPSetEntry(data []byte) (entry GoIPSetEntry, err error) {
 	set := SetResult{}
 	entry.Set = &set
-	for attr := range nl.ParseAttributes(data) {
+	for _, attr := range nl.ParseAttributes(data) {
 		switch attr.Type {
 		case nl.IPSET_ATTR_TIMEOUT | nl.NLA_F_NET_BYTEORDER:
 			val := attr.Uint32()
@@ -396,7 +396,7 @@ func parseIPSetEntry(data []byte) (entry GoIPSetEntry, err error) {
 		case nl.IPSET_ATTR_COMMENT:
 			entry.Comment = nl.BytesToString(attr.Value)
 		case nl.IPSET_ATTR_IP | nl.NLA_F_NESTED:
-			for attr := range nl.ParseAttributes(attr.Value) {
+			for _, attr := range nl.ParseAttributes(attr.Value) {
 				switch attr.Type {
 				case nl.IPSET_ATTR_IPADDR_IPV4,
 					nl.IPSET_ATTR_IPADDR_IPV6:

@@ -163,7 +163,7 @@ func debugUnSerializeNlData(msg []byte) {
 	nf := nl.DeserializeNfgenmsg(msg)
 	debugf("NfgenFamily:%d    Version:%d    ResId:%0x\n", nf.NfgenFamily, nf.Version, nf.ResId)
 
-	for attr := range nl.ParseAttributes(msg[4:]) {
+	for _, attr := range nl.ParseAttributes(msg[4:]) {
 		switch attr.Type {
 		case nl.IPSET_ATTR_PROTOCOL,
 			nl.IPSET_ATTR_REVISION,
@@ -191,7 +191,7 @@ func debugUnSerializeNlData(msg []byte) {
 }
 
 func debugParseAttrData(data []byte) {
-	for attr := range nl.ParseAttributes(data) {
+	for _, attr := range nl.ParseAttributes(data) {
 		switch attr.Type {
 		case nl.IPSET_ATTR_HASHSIZE | nl.NLA_F_NET_BYTEORDER,
 			nl.IPSET_ATTR_MAXELEM | nl.NLA_F_NET_BYTEORDER,
@@ -208,7 +208,7 @@ func debugParseAttrData(data []byte) {
 }
 
 func debugParseAttrADT(data []byte) {
-	for attr := range nl.ParseAttributes(data) {
+	for _, attr := range nl.ParseAttributes(data) {
 		switch attr.Type {
 		case nl.IPSET_ATTR_DATA | nl.NLA_F_NESTED:
 			debugf("%s:\n", attrStr[nl.IPSET_ATTR_DATA])
@@ -220,7 +220,7 @@ func debugParseAttrADT(data []byte) {
 }
 
 func debugParseEntry(data []byte) {
-	for attr := range nl.ParseAttributes(data) {
+	for _, attr := range nl.ParseAttributes(data) {
 		switch attr.Type {
 		case nl.IPSET_ATTR_TIMEOUT | nl.NLA_F_NET_BYTEORDER:
 			debugf("    %s:%d\n", cadtStr[nl.IPSET_ATTR_TIMEOUT], attr.Uint32())
@@ -235,7 +235,7 @@ func debugParseEntry(data []byte) {
 		case nl.IPSET_ATTR_IP | nl.NLA_F_NESTED,
 			nl.IPSET_ATTR_IP_TO | nl.NLA_F_NESTED:
 			debugf("    %s:\n", cadtStr[int(attr.Type&nl.NLA_TYPE_MASK)])
-			for attr := range nl.ParseAttributes(attr.Value) {
+			for _, attr := range nl.ParseAttributes(attr.Value) {
 				switch attr.Type {
 				case nl.IPSET_ATTR_IPADDR_IPV4 | nl.NLA_F_NET_BYTEORDER,
 					nl.IPSET_ATTR_IPADDR_IPV6 | nl.NLA_F_NET_BYTEORDER:
